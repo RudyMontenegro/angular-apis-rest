@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Product, CreateProductDTO} from '../../models/product.model';
+import { Product, CreateProductDTO, UpdateProductDTO} from '../../models/product.model';
 
 import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service';
+import { find } from 'rxjs';
 
 @Component({
   selector: 'app-products',
@@ -71,6 +72,21 @@ export class ProductsComponent implements OnInit {
       console.log('created' , data);
       this.products.unshift(data);
     }
+    )
+  }
+
+  updateProduct(){// tipar -> verificar si una varible cumple con los atributos del modelo
+    const changes: UpdateProductDTO = {
+      title: 'nuevo title',
+      //otro: 'asas'
+    }
+    const id = this.productChosen.id;
+    this.productsService.update(id, changes).subscribe(
+      data => {
+        const productIndex = this.products.findIndex(item => item.id === this.productChosen.id);
+        this.products[productIndex] = data;
+        this.productChosen = data;
+      }
     )
   }
 }
