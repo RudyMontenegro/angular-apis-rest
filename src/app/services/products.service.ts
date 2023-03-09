@@ -27,4 +27,8 @@ export class ProductsService {
   update(id: string, dto: any){
     return this.http.put<Product>(`${this.apiUrl}/${id}`, dto); // se cambia todos los atributos del producto// putch solo cambia un atributo
   }
+
+  delete(id: string){
+    return this.http.delete<boolean>(`${this.apiUrl}/${id}`);
+  }
 }
