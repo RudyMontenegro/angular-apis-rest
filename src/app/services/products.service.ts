@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-
+import { delay, retry, retryWhen } from 'rxjs';
 import { CreateProductDTO, Product } from './../models/product.model';
 
 @Injectable({
@@ -8,7 +8,7 @@ import { CreateProductDTO, Product } from './../models/product.model';
 })
 export class ProductsService {
 
-  private apiUrl = 'https://young-sands-07814.herokuapp.com/api/products';
+  private apiUrl = '/api/products'; // se puede dejar el url o poner un proxi
 
   constructor(
     private http: HttpClient
@@ -24,8 +24,12 @@ export class ProductsService {
       params = params.set('limit', limit);
       params = params.set('offset', limit);
     }
-    return this.http.get<Product[]>(this.apiUrl, { params });
-  }
+    return this.http.get<Product[]>(this.apiUrl, { params })
+    .pipe(
+            retry(5)// hace peticion 5 veces para consumir el api, si la conexion es inestable.
+          )
+        }
+  
 /*
   getProductsByPage(limit: number, offset: number){
     return this.http.get<Product[]>(`${this.apiUrl}`,
