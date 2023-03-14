@@ -2,7 +2,7 @@ const { Observable } = require('rxjs');
 const { filter } = require('rxjs/operators');
 
 const doSomething = () => {
-  return new Promise((resolve) => {
+  return new Promise((resolve) => { // solo es utilizado una ves, solo se usa en casos especiales.
     setTimeout(() => {
       resolve('valor 3');
     }, 3000)
@@ -10,7 +10,7 @@ const doSomething = () => {
 }
 
 const doSomething$ = () => {
-  return new Observable(observer => {
+  return new Observable(observer => { // los observables pueden ser utilizados varias veces, como un flujo de datos 
     observer.next('valor 1 $');
     observer.next('valor 2 $');
     observer.next('valor 3 $');

@@ -1,15 +1,21 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { delay, retry, retryWhen } from 'rxjs';
+import { HttpClient, HttpParams, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { retry, catchError, map } from 'rxjs/operators';
+import { throwError } from 'rxjs'
+
 import { CreateProductDTO, Product } from './../models/product.model';
+
+import { environment } from './../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductsService {
 
-  private apiUrl = '/api/products'; // se puede dejar el url o poner un proxi
-
+  private apiUrl = `${environment.API_URL}/api/products`;// SOLO EN  produccion
+  //private apiUrl = '/api/products'; // se puede dejar el url o poner un proxi
+  //private apiUrl = 'https://young-sands-07814.herokuapp.com/api/products'; // se puede dejar el url o poner un proxi
+// proxi solo corre en desarrollo y no en produccion.
   constructor(
     private http: HttpClient
 
@@ -20,13 +26,19 @@ export class ProductsService {
   }*/
   getAllProducts(limit ? : number, offset? : number) {
     let params = new HttpParams();
-    if (limit != undefined && offset != undefined){
+    if (limit != undefined && offset != undefined){// para la paginacion.
       params = params.set('limit', limit);
       params = params.set('offset', limit);
     }
     return this.http.get<Product[]>(this.apiUrl, { params })
     .pipe(
-            retry(5)// hace peticion 5 veces para consumir el api, si la conexion es inestable.
+            retry(5),// hace peticion 5 veces para consumir el api, si la conexion es inestable.
+            map(products => products.map (item => {
+              return {
+                ...item,
+                taxes: .19 * item.price
+              }
+            }))
           )
         }
   
@@ -38,8 +50,22 @@ export class ProductsService {
     }
     );
   }*/
-  getProduct(id : string){
-    return this.http.get<Product>(`${this.apiUrl}/${id}`);
+  getProduct(id: string) {
+    return this.http.get<Product>(`${this.apiUrl}/${id}`)
+    .pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === HttpStatusCode.Conflict) { //if (error.status === 500) {
+          return throwError('Algo esta fallando en el server');
+        } 
+        if (error.status === HttpStatusCode.NotFound) { //if (error.status === 404) {
+          return throwError('El producto no existe');
+        }
+        if (error.status === HttpStatusCode.Unauthorized) {
+          return throwError('No estas permitido');
+        }
+        return throwError('Ups algo salio mal');
+      })
+    )
   }
 
   create(dto: CreateProductDTO){
