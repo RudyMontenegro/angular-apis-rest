@@ -9,7 +9,7 @@ import { Product } from '../models/product.model';
 export class StoreService {
 
   private myShoppingCart: Product[] = [];
-  private myCart = new BehaviorSubject<Product[]>([]);
+  private myCart = new BehaviorSubject<Product[]>([]);// observable para que al padre y sub hijos se conecten // componenent app nav y componer hijo app prodcut
 
   myCart$ = this.myCart.asObservable();
 

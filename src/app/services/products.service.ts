@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { retry, catchError, map } from 'rxjs/operators';
-import { throwError } from 'rxjs'
+import { throwError, zip } from 'rxjs'
 
 import { CreateProductDTO, Product } from './../models/product.model';
 
@@ -33,7 +33,7 @@ export class ProductsService {
     return this.http.get<Product[]>(this.apiUrl, { params })
     .pipe(
             retry(5),// hace peticion 5 veces para consumir el api, si la conexion es inestable.
-            map(products => products.map (item => {
+            map(products => products.map (item => {// modificar, o aumetar mas datos al flujo que llega de la api.
               return {
                 ...item,
                 taxes: .19 * item.price
@@ -41,6 +41,12 @@ export class ProductsService {
             }))
           )
         }
+  featReadAndUpdate(id: string, dto: any){
+    return zip(
+      this.getProduct(id),
+      this.update(id, dto)
+    );
+    }
   
 /*
   getProductsByPage(limit: number, offset: number){

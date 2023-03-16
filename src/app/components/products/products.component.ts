@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { switchMap } from 'rxjs/operators'; // para el callback hell
+import { zip } from 'rxjs';
 
 import { Product, CreateProductDTO, UpdateProductDTO} from '../../models/product.model';
 
@@ -70,6 +72,22 @@ export class ProductsComponent implements OnInit {
         }
       )
       this.statusDetail = 'error';
+    })
+  }
+
+  readAndUpdate(id: string){ // ejemplo de callback hell, operaciones anidada del observable// swithMap cuando una depende de la otra // zip para correr todo en paralelo
+
+    this.productsService.getProduct(id)
+    .pipe(
+      switchMap((product) => this.productsService.update(product.id,{title: 'change'})),
+    )
+    .subscribe(data => {
+      console.log(data);
+    });
+    this.productsService.featReadAndUpdate(id,{title: 'change'})
+    .subscribe(response => {
+      const read = response [0];
+      const update = response [0];
     })
   }
 
