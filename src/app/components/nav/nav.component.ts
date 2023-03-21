@@ -36,21 +36,23 @@ export class NavComponent implements OnInit {
   }
   login(){
     this.authService.loginAndGet('sebas@mail.com', '1212')
-  
-   .subscribe(rta => {
+   .subscribe(user => {
+    this.profile = user;
+    //this.getProfile();
+   });
+  }
      //console.log(rta.access_token);// crear modelo auth, poner en el service, tiparlo
     //this.profile = rta;
     
-    this.profile = rta;
-     this.token = '---'
-   })
-   this.getProfile();
-  }
-  getProfile(){
-    this.authService.getProfile(this.token).
-    subscribe(rta => {
-      this.profile = rta;
-      console.log(rta)
-    })
-  }
+   // this.profile = rta; -- > cuando el token se ponia de forma manual en los metodos del servico y o del interceptor
+    // this.token = '---'
+
+  // getProfile(){
+  //   this.authService.getProfile(this.token).
+  //   subscribe(rta => {
+  //     this.profile = rta;
+  //     console.log(rta)
+  //   })
+  // }
+
 }
