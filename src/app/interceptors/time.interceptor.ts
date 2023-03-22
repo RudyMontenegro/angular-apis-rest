@@ -3,10 +3,18 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpInterceptor
+  HttpInterceptor,
+  HttpContext, // para filtrar interceptores en request
+  HttpContextToken
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+
+const CHECK_TIME = new HttpContextToken<boolean>(() => false); //momen cuando debe correr.
+
+export function checkTime(){
+  return new HttpContext().set(CHECK_TIME , true)
+}
 
 @Injectable()
 export class TimeInterceptor implements HttpInterceptor {
@@ -14,6 +22,7 @@ export class TimeInterceptor implements HttpInterceptor {
   constructor() {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+   if(request.context.get(CHECK_TIME)){
     const start = performance.now();
     return next
     .handle(request)
@@ -24,5 +33,9 @@ export class TimeInterceptor implements HttpInterceptor {
       }
         )
     );
+   }
+   return next
+   .handle(request)
+
   }
 }
